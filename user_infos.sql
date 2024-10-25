@@ -44,3 +44,10 @@ WHERE "C5" NOT LIKE '01_________';
 
 
 
+DELETE FROM user_info
+WHERE "C5" NOT LIKE '017%' 
+  AND "C5" NOT LIKE '019%' 
+  AND "C5" NOT LIKE '018%' 
+  AND "C5" NOT LIKE '016%' 
+  AND "C5" NOT LIKE '015%';
+
