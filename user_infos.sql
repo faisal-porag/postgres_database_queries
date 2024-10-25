@@ -34,3 +34,13 @@ FROM ten_digit_c5, numbers;
 DELETE FROM user_info
 WHERE length("C5") = 10;
 
+-- Query: Select rows by the patterns 
+select count(1) from user_info where "C5" like '01_________';
+
+
+-- Query: Delete the patterns 
+DELETE FROM user_info
+WHERE "C5" NOT LIKE '01_________';
+
+
+
