@@ -51,3 +51,15 @@ WHERE "C5" NOT LIKE '017%'
   AND "C5" NOT LIKE '016%' 
   AND "C5" NOT LIKE '015%';
 
+
+
+-- Query: Find duplicate C5 values 
+WITH duplicates AS (
+    SELECT
+        "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7",
+        ROW_NUMBER() OVER (PARTITION BY "C5" ORDER BY "C0") AS row_num
+    FROM
+        user_info
+)
+SELECT count(1) FROM duplicates
+    WHERE row_num > 1;
