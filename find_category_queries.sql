@@ -1,3 +1,13 @@
+-- ************************ Sample Category Table Schema ************************************
+
+CREATE TABLE IF NOT EXISTS product."Category"
+(
+    "Id"                 BIGSERIAL NOT NULL PRIMARY KEY,
+    "ParentId"           INTEGER,
+    "Icon"               VARCHAR(255),
+    "NameEn"             VARCHAR(255) NOT NULL,
+    "StatusId"           INTEGER
+);
 
 -- ************************ Find Category Level (Last Child to Parent By Given Category Id) ************************************
 
@@ -66,8 +76,27 @@ WITH RECURSIVE parent_chain AS (
 		ORDER BY level ASC;
 
 
--- ************************************************************
+-- ************************ Find Given Category Has Any Child or Not ************************************
 
+SELECT EXISTS(
+	SELECT 1 FROM product."Category"
+	WHERE "ParentId" = 4697
+);
+
+-- ************************ Find all descendants By Given Category Id (children, grandchildren, etc.) ************************************
+
+WITH RECURSIVE descendants AS (
+	SELECT "Id", "NameEn", "ParentId" FROM product."Category" WHERE "ParentId" = 4697
+
+	UNION ALL
+
+	SELECT c."Id", c."NameEn", c."ParentId"
+	FROM product."Category" c
+	JOIN descendants d ON c."ParentId" = d."Id"
+)
+SELECT * FROM descendants;
+
+-- ************************************************************
 
 
 
