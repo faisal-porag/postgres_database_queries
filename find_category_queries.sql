@@ -132,7 +132,75 @@ ORDER BY full_path;
 
 -- ************************************************************
 
+-- ✅ Much Better Production Version (True Recursive Nested JSON)
 
+-- This builds real deep nesting (multi-level) — not just one level.
+
+WITH RECURSIVE tree AS (
+
+    -- Root Categories
+    SELECT
+        c."Id",
+        c."ParentId",
+        c."NameEn",
+        1 AS level
+    FROM product."Category" c
+    WHERE c."ParentId" IS NULL
+
+    UNION ALL
+
+    SELECT
+        child."Id",
+        child."ParentId",
+        child."NameEn",
+        parent.level + 1
+    FROM product."Category" child
+    JOIN tree parent
+        ON child."ParentId" = parent."Id"
+),
+
+json_tree AS (
+
+    SELECT
+        t."Id",
+        t."ParentId",
+        jsonb_build_object(
+            'id', t."Id",
+            'name', t."NameEn"
+        ) AS node
+    FROM tree t
+)
+
+SELECT jsonb_pretty(
+    jsonb_agg(
+        build_tree.node
+    )
+)
+FROM (
+
+    SELECT
+        jt."Id",
+        jt."ParentId",
+        jsonb_build_object(
+            'id', jt."Id",
+            'name', jt.node->>'name',
+            'children',
+            COALESCE(
+                (
+                    SELECT jsonb_agg(child_tree.node)
+                    FROM json_tree child_tree
+                    WHERE child_tree."ParentId" = jt."Id"
+                ),
+                '[]'::jsonb
+            )
+        ) AS node
+    FROM json_tree jt
+    WHERE jt."ParentId" IS NULL
+
+) build_tree;
+
+
+-- ************************************************************
 
 
 
