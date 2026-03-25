@@ -97,6 +97,42 @@ WITH RECURSIVE descendants AS (
 SELECT * FROM descendants;
 
 -- ************************************************************
+-- 🌳 PostgreSQL Category Tree Query
+-- ✅ Full Category Tree (All Levels)
+
+WITH RECURSIVE category_tree AS (
+
+    -- Root Categories
+    SELECT 
+        c."Id",
+        c."ParentId",
+        c."NameEn",
+        1 AS level,
+        c."NameEn"::TEXT AS full_path
+    FROM product."Category" c
+    WHERE c."ParentId" IS NULL
+
+    UNION ALL
+
+    -- Child Categories
+    SELECT 
+        child."Id",
+        child."ParentId",
+        child."NameEn",
+        parent.level + 1,
+        parent.full_path || ' > ' || child."NameEn"
+    FROM product."Category" child
+    INNER JOIN category_tree parent 
+        ON child."ParentId" = parent."Id"
+)
+
+SELECT *
+FROM category_tree
+ORDER BY full_path;
+
+-- ************************************************************
+
+
 
 
 
